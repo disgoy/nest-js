@@ -151,6 +151,11 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#createUser" >createUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
                                 <a href="#findAll" >findAll</a>
                             </li>
                             <li>
@@ -175,12 +180,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authService: <a href="../injectables/AuthService.html" target="_self">AuthService</a>)</code>
+<code>constructor(usersRepository: Repository<User>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/users/providers/user.service.ts:8</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/users/providers/user.service.ts:12</a></div>
                             </td>
                         </tr>
 
@@ -200,10 +205,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>authService</td>
+                                                        <td>usersRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/AuthService.html" target="_self" >AuthService</a></code>
+                                                                    <code>Repository&lt;User&gt;</code>
                                                         </td>
                                                   
                                                     <td>
@@ -229,6 +234,76 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="createUser"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>createUser</b></span>
+                        <a href="#createUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createUser(createUserDto: <a href="../classes/CreateUserDto.html" target="_self">CreateUserDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/users/providers/user.service.ts:31</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>createUserDto</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateUserDto.html" target="_self" >CreateUserDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="findAll"></a>
                     <span class="name">
                             <span class="modifier">Public</span>
@@ -247,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/users/providers/user.service.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/users/providers/user.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -342,8 +417,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/users/providers/user.service.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/users/providers/user.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -400,25 +475,59 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { forwardRef, Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { GetUsersParamDto } from &quot;../dtos/get-users-param.dto&quot;;
 import { AuthService } from &quot;src/auth/providers/auth.service&quot;;
+import { CreateUserDto } from &quot;../dtos/create-user.dto&quot;;
+import { User } from &quot;../user.entity&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { Repository } from &quot;typeorm&quot;;
 /**
  * Class to connect to Users table and perform business operations
  */
 @Injectable()
 export class UsersService{
+    
     /**
      * to inject constructor
     */
+    // constructor(
+    //     @Inject(forwardRef(() &#x3D;&gt; AuthService))
+    //     private readonly authService: AuthService
+    // ){}
+
     constructor(
-        @Inject(forwardRef(() &#x3D;&gt; AuthService))
-        private readonly authService: AuthService
-    ){}
+        /**
+         * Injecting User repository into UsersService
+         * */
+        @InjectRepository(User)
+        private usersRepository: Repository&lt;User&gt;,
+      ) {}
+    
+
+    public async createUser(createUserDto: CreateUserDto) {
+        // Check if user with email exists
+        const existingUser &#x3D; await this.usersRepository.findOne({
+          where: { email: createUserDto.email },
+        });
+    
+        /**
+         * Handle exceptions if user exists later
+         * */
+    
+        // Try to create a new user
+        // - Handle Exceptions Later
+        let newUser &#x3D; this.usersRepository.create(createUserDto);
+        newUser &#x3D; await this.usersRepository.save(newUser);
+    
+        // Create the user
+        return newUser;
+      }
+    
 
     /**
      * The method to get all users from the database
      */
     public findAll(getUsersParamDto: GetUsersParamDto, limit : number, page : number){
-        const isAuth &#x3D; this.authService.isAuth();
-        console.log(isAuth);
+        // const isAuth &#x3D; this.authService.isAuth();
+        // console.log(isAuth);
         return [
             {
                 firstname: &quot;John&quot;,
